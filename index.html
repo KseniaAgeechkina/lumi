@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Луми — осколки снов</title>
+  <meta name="description" content="Лесной платформер: три главы, двадцать четыре уровней и маленький хранитель света.">
+  <link rel="icon" href="assets/images/leaf.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css?v=24">
+</head>
+<body>
+  <main class="page">
+    <header class="page-header"><a href="./" class="wordmark">✦ LUMI<span>МАЛЕНЬКИЙ ХРАНИТЕЛЬ СНОВ</span></a><span class="edition">ИГРА В БРАУЗЕРЕ · ДЛЯ КЛАВИАТУРЫ</span></header>
+    <section class="player" id="player" aria-label="Игровой плеер Луми">
+      <canvas id="canvas" width="960" height="540" tabindex="0" aria-label="Игровое поле. Движение A и D, двойной прыжок — два нажатия пробела, пауза Escape."></canvas>
+      <div class="vignette"></div>
+      <div class="hud" id="hud" hidden><button id="map-button" title="Карта уровней">❧ Карта</button><div><small id="chapter-label"></small><b id="level-label"></b></div><span id="seed-count"></span><span id="score"></span><span id="lives"></span><button id="pause-button" title="Пауза, Escape">Ⅱ</button></div>
+      <div class="supplies" aria-label="Запас усилений"><button id="boost-button" title="Попутный ветер: ускорение на 6 секунд">Ветер ×0</button><button id="weapon-button" title="Световой оберег: защита на 5 секунд">Оберег ×0</button></div>
+      <div class="overlay menu" id="menu">
+        <button id="open-settings" class="settings-shortcut" aria-label="Настройки" title="Настройки">⚙</button><div class="intro"><span class="overline">МАЛЕНЬКИЙ ХРАНИТЕЛЬ. БОЛЬШОЕ ПРИКЛЮЧЕНИЕ.</span><h1>Луми<span>осколки снов</span></h1><p>В глубине леса ещё теплится забытый свет.<br>Помоги маленькому хранителю найти дорогу к древнему дереву.</p><nav class="main-menu" aria-label="Главное меню"><button class="primary" id="start">Играть</button><button id="open-map">Уровни</button><button id="open-wardrobe">Лавка</button><button id="open-about">Об игре</button></nav><div class="menu-meta">ТРИ МИРА <i></i> ТРИ ТРОПЫ <i></i> ТРИ ГЛАВЫ</div></div>
+      </div>
+      <div class="overlay ending-overlay" id="ending" hidden><div class="ending-copy"><span class="overline">ВСЕ ТРИ ТРОПЫ ПРОЙДЕНЫ</span><h2>Лес проснулся</h2><p class="ending-victory">Вы победили и прошли игру!</p><p>Последняя тень исчезла. Огоньки вернулись к древнему дереву — и в его ветвях снова зажглась жизнь. Луми больше не один: теперь у него есть дом.</p><nav><button id="ending-map" class="primary">Тропы леса</button><button id="ending-menu" class="outline">В главное меню</button></nav></div></div>
+      <div class="overlay map-overlay" id="map" hidden><div class="map-top"><div><span class="overline">ТВОЁ ПУТЕШЕСТВИЕ</span><h2>Тропы сновидений</h2></div><button id="close-map" class="outline">Вернуться</button></div><div id="map-chapters" class="chapter-grid"></div><p class="map-note">Три тропы · По восемь уровней · ◇ Последний уровень каждой тропы — встреча со стражем.</p></div>
+      <div class="overlay modal-overlay" id="modal" hidden><div class="modal-card"><span class="overline" id="modal-kicker"></span><h2 id="modal-title"></h2><div id="story-scene" class="story-scene" hidden><img id="story-landscape" alt=""><img class="story-lumi" src="assets/images/lumi-story.png" alt="Луми — маленький хранитель света"></div><p id="modal-text"></p><div id="modal-actions"></div></div></div>
+      <div class="overlay map-overlay" id="wardrobe" hidden><div class="map-top"><div><span class="overline">ЛЕСНАЯ ЛАВКА</span><h2>Лавка для Луми</h2></div><button id="close-wardrobe" class="outline">Вернуться</button></div><p id="achievement-summary"></p><div class="shop-layout"><aside class="shop-character"><canvas id="shop-preview" width="180" height="190" aria-label="Луми с надетыми значками"></canvas><strong id="shop-wallet"></strong><p>Очки копятся во время игры.<br>Выбери значок или оберег.<br>Оберег: E · 5 секунд.<br>Ускорение: Shift · 6 секунд.</p></aside><div id="cosmetics"></div></div></div>
+      <div class="overlay modal-overlay" id="settings" hidden><div class="modal-card"><span class="overline">ПУТЕШЕСТВИЕ В ТВОЁМ ТЕМПЕ</span><h2>Настройки</h2><label class="setting"><span>Звуки собираемых огоньков</span><input id="volume" type="range" min="0" max="1" step=".05"></label><label class="setting"><span>Светящиеся частицы</span><input id="particles-mode" type="checkbox"></label><label class="setting"><span>Мягкий режим: 5 жизней</span><input id="gentle-mode" type="checkbox"></label><p class="setting-note">Режим жизней применяется с начала следующего уровня или после рестарта.</p><div class="settings-actions"><button id="close-settings" class="primary">Готово</button><button id="reset-progress" class="reset-progress">Сбросить прогресс</button></div></div></div>
+      <div class="overlay modal-overlay" id="about" hidden><div class="modal-card about-card"><span class="overline">ОБ ИГРЕ</span><h2>Свет, который ищет дорогу домой</h2><p>Луми просыпается среди притихших деревьев. Он не помнит, откуда пришёл, — только чувствует, как в прозрачной груди теплится маленький огонёк.</p><p>Древнее дерево погрузилось в глубокий сон, и его воспоминания рассыпались по лесу искрами. Ручьи замерли, тропы начали разрушаться, а из забытых тревог появились тени.</p><p>Следуя за светом через утренний лес, затонувшие руины и ночные кроны, Луми узнает, кем он был и почему лес всё ещё ждёт его возвращения. Помоги маленькому хранителю собрать потерянные воспоминания и разбудить сердце дерева.</p><div class="about-mechanics"><strong>Твой путь</strong><p>Собирай огоньки на уровнях, чтобы открывать двери на следующую тропинку. В конце каждой тропы сначала собери все огоньки, затем победи босса: уклоняйся от тёмных выстрелов и собирай свет на арене, чтобы атаковать. За последним стражем тебя ждёт пробуждение леса.</p></div><p class="about-keys">A / D или ← / → — идти · Space / W дважды — двойной прыжок · Esc — пауза</p><button class="primary" id="close-about">Вернуться в меню</button></div></div>
+      <div class="game-toast" id="toast" role="status"></div>
+      <button class="fullscreen" id="fullscreen" title="Полный экран" aria-label="Полный экран">⛶</button>
+    </section>
+    <section class="below"><div><h2>Маленькие лапки. Огромный мир снов.</h2><p>Собирай огоньки и входи в светящиеся ворота. Падение в тёмную бездну отнимает жизнь.</p></div><div class="keys"><span><kbd>A</kbd><kbd>D</kbd> движение</span><span><kbd>Space ×2</kbd> прыжок</span><span><kbd>Esc</kbd> пауза</span></div></section>
+    <footer><span>Луми · Осколки снов</span><span>Прогресс сохраняется в этом браузере <i>✦</i></span></footer>
+  </main>
+  <script src="js/Collision.js?v=24"></script><script src="js/InputHandler.js?v=24"></script><script src="js/Platform.js?v=24"></script><script src="js/Player.js?v=24"></script><script src="js/Boss.js?v=24"></script><script src="js/Levels.js?v=24"></script><script src="js/Renderer.js?v=24"></script><script src="js/Shop.js?v=24"></script><script src="js/Game.js?v=24"></script><script src="js/main.js?v=24"></script>
+</body>
+</html>

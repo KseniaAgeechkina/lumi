@@ -1,0 +1,203 @@
+/* Десктопный плеер и спокойная внешняя страница. */
+:root { color-scheme: dark; --ink: #080d19; --silver: #e5e7ef; --muted: #9ea6be; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; min-width: 860px; background: #080d17; background-image: radial-gradient(ellipse at 50% 30%, #27314b66, transparent 65%); color: var(--silver); font-family: Arial, sans-serif; }
+button { cursor: pointer; font: inherit; color: inherit; border: 0; }
+button:disabled { cursor: default; }
+button:focus-visible, a:focus-visible { outline: 2px solid #e9e5fb; outline-offset: 4px; }
+.page { width: min(1200px, calc(100% - 80px)); margin: 0 auto; }
+.page-header { height: 85px; display: flex; align-items: center; justify-content: space-between; }
+.wordmark { color: var(--silver); text-decoration: none; font: 26px Georgia, serif; letter-spacing: 4px; }
+.wordmark span { display: block; font: 8px Arial, sans-serif; letter-spacing: 2px; margin-top: 7px; color: var(--muted); }
+.edition { font-size: 9px; letter-spacing: 2px; color: var(--muted); }
+.player { width: 100%; aspect-ratio: 16 / 9; position: relative; overflow: hidden; background: var(--ink); border: 1px solid #9ba4c03a; border-radius: 5px; box-shadow: 0 25px 90px #0008; isolation: isolate; }
+.player:fullscreen { width: 100vw; height: 100vh; aspect-ratio: auto; border: 0; border-radius: 0; display: grid; place-items: center; }
+canvas { display: block; width: 100%; height: 100%; object-fit: contain; outline: none; }
+.vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 80px #080d194d; }
+.overlay { position: absolute; inset: 0; }
+.fullscreen { position: absolute; right: 14px; bottom: 12px; font-size: 23px; background: #080d1999; width: 42px; height: 42px; border-radius: 3px; color: #e1e6f2; }
+/* Главное меню: простые названия и читаемая классическая типографика. */
+.menu { background: linear-gradient(90deg, #060d20e8, #131a365c 62%, transparent); display: flex; align-items: center; }
+.intro { padding-left: 7%; width: 64%; }
+.overline { color: #b3bfd4; font: 8px Arial, sans-serif; letter-spacing: 2px; }
+h1 { font: 72px Georgia, serif; letter-spacing: 2px; margin: 12px 0 18px; color: #f4f1f8; text-shadow: 0 0 40px #dedaff33; }
+h1 span { display: block; font: 13px Arial, sans-serif; text-transform: uppercase; letter-spacing: 4px; margin-top: 9px; }
+.intro p { font-size: 12px; line-height: 1.8; color: #c8ccdf; margin: 12px 0 18px; }
+.main-menu { display: grid; gap: 3px; width: 224px; margin-top: 30px; }
+.main-menu button { background: none; position: relative; padding: 9px 15px; text-align: center; font: 17px Georgia, serif; letter-spacing: 1px; color: #dee1ec; }
+.main-menu button::before { content: '◇'; position: absolute; left: 0; opacity: 0; transition: opacity .2s; }
+.main-menu button::after { content: '◇'; position: absolute; right: 0; opacity: 0; transition: opacity .2s; }
+.main-menu button:hover { color: #fff; text-shadow: 0 0 15px #d9e2ff88; }
+.main-menu button:hover::before, .main-menu button:hover::after { opacity: 1; }
+.main-menu .primary { color: #fff; }
+.menu-meta { margin-top: 15px; display: flex; align-items: center; gap: 12px; font-size: 8px; letter-spacing: 2px; color: #9ca7c0; }
+.menu-meta i { width: 3px; height: 3px; background: #d4d8e5; border-radius: 50%; }
+.primary, .outline { background: #d9e0f20a; padding: 9px 15px; border: 1px solid #c5cce23d; border-radius: 0; font: 13px Georgia, serif; color: #e7e8ef; transition: background .2s; }
+.primary:hover, .outline:hover { background: #d9e0f223; }
+/* Верхняя панель: здоровье, огоньки и прогресс. */
+.hud { position: absolute; top: 0; left: 0; right: 0; display: flex; gap: 22px; align-items: center; padding: 16px 22px; background: linear-gradient(#050b1cd9, transparent); font: 14px Georgia, serif; }
+.hud > div { flex: 1; }
+.hud small { display: block; font: 8px Arial, sans-serif; color: #bec6db; letter-spacing: 1.3px; margin-bottom: 5px; }
+.hud b { font: 15px Georgia, serif; }
+.hud button { background: #080f2299; border: 1px solid #d0d5e633; padding: 8px 10px; font: 11px Arial, sans-serif; }
+#lives { color: #f0edf6; letter-spacing: 3px; }
+/* Карта: один мир, общая извилистая тропа, три области. */
+.map-overlay { padding: 30px 4% 24px; background: #081222f0; display: flex; flex-direction: column; }
+.map-top { display: flex; align-items: center; justify-content: space-between; flex: none; gap: 20px; }
+h2 { font: 26px Georgia, serif; font-weight: normal; margin: 8px 0; letter-spacing: .5px; }
+.map-note { flex: none; font: 10px Arial, sans-serif; text-align: center; color: #c0c7d6; margin: 13px 0 2px; }
+/* Окна с самостоятельным светлым орнаментом сверху и снизу. */
+.modal-overlay { background: #04091491; display: grid; place-items: center; backdrop-filter: blur(3px); }
+.modal-card { position: relative; width: 460px; max-width: 80%; text-align: center; padding: 26px 30px; background: #050c1ceb; border: none; border-radius: 0; box-shadow: 0 10px 70px #02040caa; }
+.modal-card::before, .modal-card::after { content: ''; position: absolute; left: 5%; width: 90%; height: 42px; background: url('../assets/images/flourish.svg') center / contain no-repeat; pointer-events: none; }
+.modal-card::before { top: -27px; }
+.modal-card::after { bottom: -27px; transform: rotate(180deg); }
+.modal-card h2 { font-size: 29px; margin: 12px 0; color: #f1eff7; }
+.modal-card p { font: 14px/1.7 Georgia, serif; color: #d3d6e5; }
+#modal-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; margin-top: 19px; }
+.map-overlay::before, .map-overlay::after { content: ''; position: absolute; left: 35%; width: 30%; height: 28px; background: url('../assets/images/flourish.svg') center / contain no-repeat; pointer-events: none; }
+.map-overlay::before { top: 1px; }
+.map-overlay::after { bottom: -3px; transform: rotate(180deg); }
+/* Кастомизация, достижения и настройки. */
+#cosmetics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 12px; }
+.cosmetic { display: flex; flex-direction: column; align-items: center; gap: 7px; min-height: 101px; padding: 11px 6px; border: 1px solid #d0d5e626; background: #c4cee40c; }
+.cosmetic.selected { border-color: #e3dcf2; background: #c4cee41c; }
+.cosmetic:disabled { opacity: .45; }
+.cosmetic-preview { font-size: 29px; line-height: 30px; }
+.cosmetic b { font: 11px Georgia, serif; }
+.cosmetic small { font: 9px/1.4 Arial, sans-serif; color: #b9c1d7; }
+#achievement-summary { color: #bec5da; font-size: 11px; margin: 10px 0; }
+.setting { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 14px 0; border-bottom: 1px solid #b9c1da22; text-align: left; font: 12px Arial, sans-serif; }
+.setting input { accent-color: #d4cfe7; }
+.setting input[type='range'] { width: 110px; }
+.setting input[type='checkbox'] { width: 16px; height: 16px; }
+.modal-card .setting-note { font: 10px/1.6 Arial, sans-serif; color: #aeb8d1; }
+.game-toast { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 9px 17px; max-width: 75%; background: #080f22d9; border: 1px solid #c4ccdf30; color: #e2e3ec; font-size: 11px; opacity: 0; transition: opacity .2s; pointer-events: none; text-align: center; }
+.game-toast.show { opacity: 1; }
+/* Подсказки вне игры. */
+.below { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 25px 0; }
+.below h2 { font: 17px Georgia, serif; margin: 0 0 8px; }
+.below p { color: #8f9bb4; font-size: 10px; margin: 0; }
+.keys { display: flex; gap: 16px; color: #aeb8ce; font-size: 9px; }
+.keys span { display: flex; align-items: center; gap: 5px; }
+kbd { padding: 6px; font: 10px Arial, sans-serif; background: #182038; border: 1px solid #9da7bd44; border-bottom-width: 2px; border-radius: 3px; }
+footer { display: flex; justify-content: space-between; padding: 17px 0 22px; border-top: 1px solid #8e98ae24; color: #8d98af; font-size: 8px; letter-spacing: 1px; }
+footer i { font-style: normal; margin-left: 9px; color: #c1c8d7; }
+@media (max-height: 800px) and (min-width: 1200px) { .page { max-width: 1040px; } .page-header { height: 72px; } .below { padding: 19px 0; } }
+/* В паузе главное действие заметно первым, выход остаётся вторичным. */
+.pause-screen #modal-actions { flex-direction: column; align-items: center; gap: 8px; }
+.pause-screen #modal-actions .primary { width: 215px; padding: 12px 22px; background: #e6e8f2; color: #111a2c; border-color: #f8f7ff; font-size: 17px; }
+.pause-screen #modal-actions .primary:hover { background: #fff; box-shadow: 0 0 24px #d8e3ff33; }
+.pause-screen #modal-actions .outline { border: none; background: none; color: #b7bfd1; font: 14px Arial, sans-serif; padding: 10px 20px; }
+.pause-screen #modal-actions .outline:hover { color: #fff; }
+/* Пять пунктов меню помещаются в плеер и на небольшом десктопном экране. */
+h1 { font-size: 66px; margin: 8px 0 12px; }
+.intro p { font-size: 11.5px; line-height: 1.7; margin: 10px 0 14px; }
+.main-menu button { padding-top: 8px; padding-bottom: 8px; }
+.about-card { width: min(700px, 84%); max-width: none; padding: clamp(22px, 2.3cqw, 30px) clamp(20px, 2.6cqw, 32px); overflow: visible; }
+.about-card p { font: clamp(10px, 1.05cqw, 12px)/1.5 Arial, sans-serif; text-align: left; margin: 7px 0; }
+.about-card h2 { font-size: clamp(21px, 2.2cqw, 26px); margin: 9px 0; }
+.about-card .about-keys { font-size: clamp(9px, .95cqw, 11px); text-align: center; color: #aebbd5; }
+/* Лавка значков: примерка героя и общий накопительный кошелёк. */
+.shop-layout { display: grid; grid-template-columns: 170px minmax(0,1fr); gap: 22px; flex: 1; min-height: 0; margin-top: 8px; }
+.shop-character { display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #d0d5e626; padding-right: 16px; }
+#shop-preview { width: 160px; height: 170px; flex: none; }
+#shop-wallet { font: 20px Georgia,serif; color: #f3dda9; margin-top: 6px; }
+.shop-character p { font: 10px/1.6 Arial,sans-serif; text-align: center; color: #aebbd5; }
+#cosmetics { grid-template-columns: repeat(3,minmax(0,1fr)); align-content: center; margin: 0; gap: 12px; }
+.cosmetic { min-height: 120px; justify-content: center; gap: 6px; }
+.cosmetic b { font-size: 13px; }
+.cosmetic small { font-size: 10px; }
+.cosmetic:disabled { opacity: .6; }
+.shop-action { font: 11px Arial,sans-serif; color: #e6d5b2; border-top: 1px solid #d0d5e626; padding-top: 7px; margin-top: 2px; }
+.cosmetic.selected .shop-action { color: #f5e4be; }
+.hud { gap: 17px; }
+#score { font-size: 12px; }
+
+/* Чистое главное меню и отдельный доступ к настройкам. */
+.main-menu button, .main-menu .primary { border: 0; background: transparent; box-shadow: none; }
+.settings-shortcut { position: absolute; top: 18px; right: 20px; width: 38px; height: 38px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: #10172966; color: #f5f1e7; font: 27px/1 Arial, sans-serif; cursor: pointer; transition: background .2s, transform .2s; }
+.settings-shortcut:hover { background: #c5c8e333; transform: rotate(20deg); }
+
+/* Три прямоугольные карточки с самостоятельными списками уровней. */
+.chapter-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
+.chapter-card { min-height: 0; min-width: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto 106px auto; background: #111c2de6; border: 1px solid #c7c9da30; overflow: hidden; }
+.chapter-art { width: 100%; height: 100%; min-height: 0; object-fit: cover; }
+.chapter-heading { padding: 10px 12px 8px; }
+.chapter-heading .overline { font-size: 7px; letter-spacing: 1.8px; color: #c7bfae; }
+.chapter-heading h3 { margin: 5px 0 0; font: 15px/1.2 Georgia,serif; color: #f0e9db; }
+.chapter-levels { min-height: 0; min-width: 0; overflow: visible; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); grid-template-rows: repeat(2,minmax(0,1fr)); gap: 10px; padding: 5px 12px 10px; }
+.chapter-level { position: relative; width: 100%; height: 100%; padding: 0; display: grid; place-items: center; border-radius: 10px; border: 1px solid #d6dce76b; background: #aebbd51c; color: #e8edf7; font: 13px/1 Arial,sans-serif; transition: background .2s, box-shadow .2s; }
+.chapter-level:disabled { color: #7f8da5; border-color: #77869c40; background: #09112055; cursor: default; }
+.chapter-level:hover:not(:disabled), .chapter-level.current { background: #d5dded35; border-color: #fff3cd; box-shadow: 0 0 15px #e8d9b838; color: #fff8e3; }
+.chapter-level.completed { border-color: #e4c68e; color: #f5deb0; }
+.level-number { color: inherit; font-size: 18px; }
+.level-status { position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); color: #e4c68e; font-size: 5px; letter-spacing: .4px; white-space: nowrap; }
+.chapter-level.completed .level-number { transform: translateY(-3px); }
+.chapter-level:not(.completed) .level-status { display: none; }
+.chapter-progress { margin: 0; padding: 7px 10px; font: 8px Arial,sans-serif; color: #aab6c9; border-top: 1px solid #c9d0df1c; }
+/* Иллюстрированная сюжетная развязка после 8, 16 и 24 уровня. */
+.story-screen .modal-card { width: 535px; padding: 20px 26px; }
+.story-screen h2 { font-size: 25px; margin: 9px 0; }
+.story-screen #modal-text { font: 12px/1.6 Arial, sans-serif; margin: 12px 0; color: #d0d6e3; }
+.story-scene { height: 135px; position: relative; overflow: hidden; margin-top: 12px; }
+#story-landscape { width: 100%; height: 100%; object-fit: cover; object-position: center 60%; }
+.story-lumi { position: absolute; height: 105px; width: auto; bottom: 0; left: calc(50% - 50px); }
+.story-screen #modal-actions { gap: 9px; }
+.story-screen #modal-actions button { font-size: 12px; }
+
+/* Сброс доступен только после отдельного подтверждения. */
+.settings-actions { margin-top: 12px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.reset-progress { background: transparent; border: 0; border-bottom: 1px solid #caabaf50; color: #c9adb8; padding: 4px 0; font: 11px Arial, sans-serif; }
+.reset-progress:hover { color: #f8d8e1; border-color: #f8d8e1; }
+
+
+/* Боевой заряд отделён от счёта уровня и показывает оставшееся время. */
+
+
+/* Меню и подпись опущены вместе, заголовок сохраняет своё положение. */
+.main-menu, .menu-meta { transform: translateY(24px); }
+/* Запас усилений находится в нижнем правом углу только во время игры. */
+.supplies { position: absolute; right: 18px; bottom: 18px; z-index: 5; display: flex; flex-direction: column; gap: 6px; }
+.player:has(#hud[hidden]) .supplies { display: none; }
+.supplies button { min-width: 143px; text-align: left; padding: 9px 12px; font: 11px/1.2 Arial, sans-serif; background: #080f22c9; border: 1px solid #d0d5e633; color: #e0e5f1; }
+.supplies button:disabled:not(.active) { color: #aab3c6; }
+.supplies #boost-button { color: #f5d5a6; }
+.supplies #weapon-button { color: #c7e4f8; }
+.supplies button.active { border-color: #d6e6ff; box-shadow: 0 0 16px #b8cfff33; }
+
+/* Финальные уровни глав помечены знаком стража. */
+.chapter-level.boss-level { border: 2px solid #d5a5c9; background: #745b8940; box-shadow: 0 0 14px #c8a1d130; }
+.chapter-level.boss-level::before { content: '◇'; position: absolute; top: 3px; right: 4px; left: auto; font: 8px/1 Arial,sans-serif; color: #e3c1e2; }
+.ending-overlay { display: flex; align-items: center; padding: 30px 6%; background: linear-gradient(90deg,#071326ee,#07132699 37%,transparent 66%); }
+.ending-copy { width: 32%; max-width: 330px; text-align: left; }
+.ending-copy h2 { font: 42px/1.1 Georgia,serif; color: #f8edc6; margin: 18px 0; }
+.ending-copy p { font: 12px/1.8 Arial,sans-serif; color: #d1d9e6; }
+.ending-copy .ending-victory { color: #f1dba5; font-size: 15px; }
+.ending-copy nav { display: flex; flex-direction: column; align-items: flex-start; gap: 9px; margin-top: 22px; }
+.ending-copy .primary { background: #e9dfbf; color: #172333; }
+
+@media (max-width: 1050px) { .chapter-card { grid-template-rows: minmax(0,1fr) auto 96px auto; } .chapter-levels { gap: 8px; padding: 4px 9px 9px; } .chapter-heading { padding: 8px 10px 6px; } .chapter-heading h3 { font-size: 13px; } .chapter-progress { font-size: 7.5px; padding: 6px 8px; } }
+
+.about-mechanics { border-top: 1px solid #c6d0e329; padding-top: 11px; margin-top: 14px; text-align: left; }
+.about-mechanics strong { color: #e7d8b9; font: 13px Georgia, serif; }
+.about-mechanics p { color: #b9c5d7; font-size: 11px; }
+
+/* Текст и оба орнамента целиком помещаются в плеер без прокрутки. */
+.player { container-type: inline-size; }
+.about-card::before { top: -21px; }
+.about-card::after { bottom: -21px; }
+.about-card .about-mechanics { padding-top: 8px; margin-top: 10px; }
+.about-card .about-mechanics p { font-size: clamp(10px, 1cqw, 11px); margin: 6px 0; }
+.about-card .about-mechanics strong { font-size: clamp(11px, 1.1cqw, 13px); }
+.about-card #close-about { padding: 8px 14px; font-size: 12px; margin-top: 3px; }
+@container (max-width: 850px) {
+  .about-card { width: 90%; padding: 16px 22px; }
+  .about-card p { line-height: 1.45; margin: 5px 0; }
+  .about-card h2 { font-size: 20px; margin: 7px 0; }
+  .about-card::before, .about-card::after { height: 32px; }
+  .about-card::before { top: -16px; }
+  .about-card::after { bottom: -16px; }
+  .about-card .about-mechanics { padding-top: 6px; margin-top: 7px; }
+}
